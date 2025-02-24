@@ -1,0 +1,222 @@
+/* 🖥️ Estilos Generales */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+  background-color: #1e1e1e;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 20px;
+  /* 🔹 Aumenta el tamaño de la fuente general */
+}
+
+/* 📅 Contenedor del calendario */
+.content-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 800px;
+}
+
+/* 🎨 Estilos del calendario */
+.custom-calendar {
+  width: 100%;
+  max-width: 550px;
+  /* 🔹 Aumentado */
+  background: rgba(126, 122, 122, 0.61);
+  border-radius: 12px;
+  padding: 25px;
+  /* 🔹 Espaciado mayor */
+  box-shadow: 0px 4px 12px rgba(255, 255, 255, 0.1);
+  font-size: 1.3rem;
+  /* 🔹 Texto más grande */
+  color: black;
+}
+
+/* 📌 Formulario y calendario más grandes */
+.content-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  /* 🔹 Espaciado mayor */
+  width: 100%;
+  max-width: 1300px;
+  /* 🔹 Más ancho */
+  margin: 0 auto;
+}
+
+.form-container,
+.calendar-container {
+  flex: 1;
+  max-width: 550px;
+  /* 🔹 Más grande */
+}
+
+/* 🎯 Días resaltados con clases */
+.highlight-class-day {
+  background-color: #d5bb27 !important;
+  color: black !important;
+  font-weight: bold;
+  border-radius: 50%;
+}
+
+/* 📝 Sección de Clases del Día */
+.clases-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  font-size: 1.3rem;
+  /* 🔹 Texto más grande */
+}
+
+/* 🔹 Ajuste del tamaño y centrado de clases */
+.clase-item {
+  width: 85%;
+  max-width: 550px;
+  background-color: #333;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* 📌 Botones más grandes y colores diferenciados */
+.botones-container {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  width: 100%;
+  margin-top: 15px;
+}
+
+button {
+  font-size: 18px;
+  padding: 14px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: none;
+  font-weight: bold;
+}
+
+/* Botón verde de WhatsApp */
+.boton-enviar {
+  background-color: #25D366;
+  color: white;
+}
+
+.boton-enviar:hover {
+  background-color: #1ebe57;
+}
+
+/* Botón amarillo para Editar */
+.boton-editar {
+  background-color: #f4a100;
+  color: white;
+}
+
+.boton-editar:hover {
+  background-color: #d68f00;
+}
+
+/* Botón rojo para Eliminar */
+.boton-eliminar {
+  background-color: #dc3545;
+  color: white;
+}
+
+.boton-eliminar:hover {
+  background-color: #c82333;
+}
+
+/* 📌 Formulario */
+.form-container {
+  background-color: #282c34;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0px 4px 12px rgba(255, 255, 255, 0.1);
+  max-width: 500px;
+  text-align: center;
+  transition: all 0.3s ease-in-out;
+  font-size: 1.2rem;
+  /* 🔹 Texto más grande */
+}
+
+.form-container:hover {
+  transform: scale(1.05);
+}
+
+/* 🔘 Inputs */
+input[type="text"],
+input[type="date"] {
+  width: calc(100% - 20px);
+  padding: 14px;
+  /* 🔹 Inputs más grandes */
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #aaa;
+  font-size: 1.2rem;
+}
+
+/* 🔲 Checkboxes */
+.dias-semana {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+  gap: 10px;
+  /* 🔹 Más espaciado */
+}
+
+.dias-semana label {
+  background: #444;
+  color: white;
+  padding: 8px 15px;
+  /* 🔹 Botones más grandes */
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.dias-semana input[type="checkbox"] {
+  display: none;
+}
+
+.dias-semana label.dia-seleccionado {
+  background: #bca624;
+  color: black;
+  font-weight: bold;
+}
+
+.dias-semana label.dia-no-seleccionado {
+  background: #444;
+  color: white;
+}
+
+/* 🚀 Botón */
+.submit-button {
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  padding: 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 1.2rem;
+  transition: 0.3s;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}

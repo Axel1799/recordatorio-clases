@@ -1,0 +1,7 @@
+Tema	Tag
+Motivación	"motivational"
+Inspiración	"inspirational"
+Éxito	"success"
+Liderazgo	"leadership"
+Sabiduría	"wisdom"
+Vida	"life"
