@@ -5,6 +5,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const axios = require('axios');
 const https = require('https'); // Agregamos https para ignorar certificados vencidos
+const cron = require('node-cron');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -22,16 +23,22 @@ const db = new sqlite3.Database('./database.sqlite', (err) => {
     }
 });
 
-// Crear la tabla si no existe
-db.run(`CREATE TABLE IF NOT EXISTS clases (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    nombre TEXT NOT NULL,
-    horario TEXT NOT NULL,
-    enlace TEXT NOT NULL,
-    fecha_inicio TEXT NOT NULL,
-    fecha_fin TEXT NOT NULL,
-    dias_de_clase TEXT NOT NULL
-)`);
+// Crear la tabla si no existe y añadir índices para optimizar búsquedas
+db.serialize(() => {
+    db.run(`CREATE TABLE IF NOT EXISTS clases (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        horario TEXT NOT NULL,
+        enlace TEXT NOT NULL,
+        fecha_inicio TEXT NOT NULL,
+        fecha_fin TEXT NOT NULL,
+        dias_de_clase TEXT NOT NULL
+    )`);
+
+    // Índices para acelerar las consultas por fecha
+    db.run(`CREATE INDEX IF NOT EXISTS idx_fecha_inicio ON clases (fecha_inicio)`);
+    db.run(`CREATE INDEX IF NOT EXISTS idx_fecha_fin ON clases (fecha_fin)`);
+});
 
 // 🔹 Frases inspiradoras en español (respaldo local)
 const frasesLocales = [
@@ -82,32 +89,75 @@ app.get("/frase", async (req, res) => {
     }
 });
 
-// Obtener todas las clases de un mes específico
-app.get('/clases/:year/:month', (req, res) => {
+// Obtener los días que tienen clases en un mes específico para resaltar en el calendario
+app.get('/clases/:year/:month/highlight', (req, res) => {
     const { year, month } = req.params;
-    const inicioMes = `${year}-${month}-01`;
-    const finMes = `${year}-${month}-31`;
+    const firstDayOfMonth = `${year}-${month.padStart(2, '0')}-01`;
+    const lastDayOfMonth = new Date(year, month, 0).toISOString().split('T')[0];
 
-    db.all("SELECT * FROM clases WHERE fecha_inicio <= ? AND fecha_fin >= ?", [finMes, inicioMes], (err, rows) => {
+    const query = `
+        SELECT fecha_inicio, fecha_fin, dias_de_clase FROM clases
+        WHERE fecha_fin >= ? AND fecha_inicio <= ?
+    `;
+
+    db.all(query, [firstDayOfMonth, lastDayOfMonth], (err, rows) => {
         if (err) {
-            res.status(500).json({ error: err.message });
-        } else {
-            res.json(rows);
+            return res.status(500).json({ error: err.message });
         }
+
+        const datesToHighlight = new Set();
+        const dayNames = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+
+        rows.forEach(clase => {
+            try {
+                const diasClase = JSON.parse(clase.dias_de_clase).map(d => d.toLowerCase());
+                const startDate = new Date(clase.fecha_inicio + 'T00:00:00Z');
+                const endDate = new Date(clase.fecha_fin + 'T00:00:00Z');
+
+                for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                    if (d.getUTCFullYear() == year && d.getUTCMonth() == month - 1) {
+                        const dayOfWeekName = dayNames[d.getUTCDay()];
+                        if (diasClase.includes(dayOfWeekName)) {
+                            datesToHighlight.add(d.toISOString().split('T')[0]);
+                        }
+                    }
+                }
+            } catch (e) {
+                // Ignorar clases con formato de `dias_de_clase` inválido
+            }
+        });
+
+        res.json(Array.from(datesToHighlight));
     });
 });
 
-// Obtener clases de un día específico
+// Obtener clases de un día específico (optimizado y corregido)
 app.get('/clases/dia/:fecha', (req, res) => {
     const { fecha } = req.params;
-    db.all("SELECT * FROM clases WHERE fecha_inicio <= ? AND fecha_fin >= ?", [fecha, fecha], (err, rows) => {
+    // Se usa T12:00:00 para evitar problemas de zona horaria al interpretar la fecha
+    const diaSemana = new Date(fecha + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long' });
+
+    // La consulta ahora es insensible a mayúsculas/minúsculas
+    const sql = `
+        SELECT * FROM clases 
+        WHERE fecha_inicio <= ? 
+          AND fecha_fin >= ? 
+          AND LOWER(dias_de_clase) LIKE ?`;
+    
+    const params = [fecha, fecha, `%${diaSemana.toLowerCase()}%`];
+
+    db.all(sql, params, (err, rows) => {
         if (err) {
             res.status(500).json({ error: err.message });
         } else {
+            // El filtro final también debe ser insensible a mayúsculas/minúsculas
             const clasesDelDia = rows.filter(clase => {
-                const diasClase = JSON.parse(clase.dias_de_clase);
-                const diaSemana = new Date(fecha).toLocaleDateString('es-ES', { weekday: 'long' });
-                return diasClase.includes(diaSemana);
+                try {
+                    const diasClase = JSON.parse(clase.dias_de_clase).map(d => d.toLowerCase());
+                    return Array.isArray(diasClase) && diasClase.includes(diaSemana.toLowerCase());
+                } catch (e) {
+                    return false; // Ignorar si el JSON es inválido
+                }
             });
             res.json(clasesDelDia);
         }
@@ -175,6 +225,26 @@ app.delete('/clases/:id', (req, res) => {
             res.json({ message: "Clase eliminada" });
         }
     });
+});
+
+// Tarea programada para limpieza de clases finalizadas
+cron.schedule('0 9 * * *', () => {
+    console.log('Ejecutando tarea de limpieza de clases finalizadas (9:00 AM Paraguay)...');
+    const hoy = new Date();
+    const fechaHoyStr = hoy.toISOString().split('T')[0];
+
+    db.run("DELETE FROM clases WHERE fecha_fin < ?", [fechaHoyStr], function(err) {
+        if (err) {
+            console.error("Error en la limpieza automática de clases:", err.message);
+        } else {
+            if (this.changes > 0) {
+                console.log(`Tarea de limpieza completada. Clases eliminadas: ${this.changes}`);
+            }
+        }
+    });
+}, {
+    scheduled: true,
+    timezone: "America/Asuncion"
 });
 
 // Iniciar el servidor

@@ -6,11 +6,35 @@
   justify-content: center;
   height: 100vh;
   width: 100vw;
-  background-color: #1e1e1e;
   color: white;
   font-family: Arial, sans-serif;
   font-size: 20px;
-  /* 🔹 Aumenta el tamaño de la fuente general */
+  position: relative;
+  /* Requerido para el pseudo-elemento */
+
+  /* Estilos para la imagen de fondo (logo) */
+  background-image: url('/logo-unae.png');
+  background-position: center 20px;
+  /* Centrado horizontal, 20px desde arriba */
+  background-repeat: no-repeat;
+  background-size: 150px auto;
+  /* Ancho de 150px, alto automático */
+  background-attachment: scroll;
+  /* El fondo se desplaza con el contenido */
+}
+
+.app-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/fondo-web-recordatorio.png');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.2;
+  z-index: -1;
 }
 
 /* 📅 Contenedor del calendario */
@@ -28,14 +52,16 @@
   width: 100%;
   max-width: 550px;
   /* 🔹 Aumentado */
-  background: rgba(126, 122, 122, 0.61);
+  background: rgba(0, 0, 0, 0.2);
+  /* Fondo oscuro para contraste */
   border-radius: 12px;
   padding: 25px;
   /* 🔹 Espaciado mayor */
-  box-shadow: 0px 4px 12px rgba(255, 255, 255, 0.1);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
   font-size: 1.3rem;
   /* 🔹 Texto más grande */
-  color: black;
+  color: white;
+  /* Texto blanco para contraste */
 }
 
 /* 📌 Formulario y calendario más grandes */
@@ -67,28 +93,44 @@
 }
 
 /* 📝 Sección de Clases del Día */
-.clases-list {
+.clases-del-dia-container {
+  width: 100%;
+  max-height: 350px;
+  /* Altura máxima antes de mostrar scroll */
+  overflow-y: auto;
+  /* Scroll vertical si el contenido excede la altura */
+  overflow-x: hidden;
+  /* Previene el scroll horizontal */
+  box-sizing: border-box;
+  /* Asegura que el padding no cause overflow */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  width: 100%;
-  font-size: 1.3rem;
-  /* 🔹 Texto más grande */
+  gap: 15px;
+  /* Espacio entre los items de clase */
+  padding: 10px;
+  /* Espaciado interno */
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 /* 🔹 Ajuste del tamaño y centrado de clases */
 .clase-item {
-  width: 85%;
+  width: 95%;
+  /* Ocupa casi todo el ancho del contenedor scrollable */
   max-width: 550px;
-  background-color: #333;
+  background-color: #e8debe;
+  /* Nuevo color de fondo para item */
+  color: #333;
+  /* Nuevo color de texto para item */
   padding: 15px;
   border-radius: 10px;
-  margin-bottom: 12px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
+  flex-shrink: 0;
+  /* Evita que los items se encojan */
 }
 
 /* 📌 Botones más grandes y colores diferenciados */
@@ -119,6 +161,17 @@ button {
   background-color: #1ebe57;
 }
 
+/* Botón para Reenviar */
+.boton-reenviar {
+  background-color: #20a553;
+  /* Un verde más oscuro */
+  color: white;
+}
+
+.boton-reenviar:hover {
+  background-color: #188742;
+}
+
 /* Botón amarillo para Editar */
 .boton-editar {
   background-color: #f4a100;
@@ -141,10 +194,11 @@ button {
 
 /* 📌 Formulario */
 .form-container {
-  background-color: #282c34;
+  background-color: rgba(0, 0, 0, 0.2);
+  /* Fondo oscuro para contraste */
   padding: 25px;
   border-radius: 15px;
-  box-shadow: 0px 4px 12px rgba(255, 255, 255, 0.1);
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
   max-width: 500px;
   text-align: center;
   transition: all 0.3s ease-in-out;
@@ -154,6 +208,15 @@ button {
 
 .form-container:hover {
   transform: scale(1.05);
+}
+
+.form-label {
+  display: block;
+  text-align: left;
+  margin-bottom: 5px;
+  font-size: 1rem;
+  color: #ccc;
+  padding-left: 5px;
 }
 
 /* 🔘 Inputs */
@@ -166,6 +229,10 @@ input[type="date"] {
   border-radius: 6px;
   border: 1px solid #aaa;
   font-size: 1.2rem;
+  background-color: #e8debe;
+  /* Nuevo color de fondo para inputs */
+  color: #333;
+  /* Nuevo color de texto para inputs */
 }
 
 /* 🔲 Checkboxes */
@@ -179,8 +246,8 @@ input[type="date"] {
 }
 
 .dias-semana label {
-  background: #444;
-  color: white;
+  background: #e8debe;
+  color: #333;
   padding: 8px 15px;
   /* 🔹 Botones más grandes */
   border-radius: 8px;
@@ -199,14 +266,9 @@ input[type="date"] {
   font-weight: bold;
 }
 
-.dias-semana label.dia-no-seleccionado {
-  background: #444;
-  color: white;
-}
-
 /* 🚀 Botón */
 .submit-button {
-  background-color: #007BFF;
+  background-color: #94623a;
   color: white;
   border: none;
   padding: 14px;
@@ -218,5 +280,5 @@ input[type="date"] {
 }
 
 .submit-button:hover {
-  background-color: #0056b3;
+  background-color: #532c0c;
 }
