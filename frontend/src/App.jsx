@@ -122,7 +122,7 @@ function App() {
 
   const enviarRecordatorio = async (clase) => {
     const { quote, author } = await obtenerFraseInspiradora();
-    const mensaje = `Estimados estudiantes,\nLes remito el enlace para la clase de: *${clase.nombre}*\n*Horario:* ${clase.horario}\n*Enlace:* ${clase.enlace}\n\n*"${quote}"*\n_- ${author}_\n\n¡Ánimos!`;
+    const mensaje = `Estimados estudiantes,\n\nLes remito el enlace para la clase de: *${clase.nombre}*\n*Horario:* ${clase.horario}\n*Enlace:* ${clase.enlace}\n\n¡Ánimos!`;
     const url = `https://wa.me/?text=${encodeURIComponent(mensaje)}`;
     window.open(url, "_blank");
     setEnviados(prevEnviados => new Set(prevEnviados).add(clase.id));
@@ -163,9 +163,18 @@ function App() {
             onChange={setFechaSeleccionada}
             value={fechaSeleccionada}
             className="custom-calendar"
-            tileClassName={({ date }) => {
-              const fechaStr = date.toISOString().split("T")[0];
-              return highlightedDays.includes(fechaStr) ? "highlight-class-day" : "";
+            tileClassName={({ date, view }) => {
+              const classes = [];
+              if (view === 'month') {
+                const fechaStr = date.toISOString().split("T")[0];
+                if (highlightedDays.includes(fechaStr)) {
+                  classes.push("highlight-class-day");
+                }
+                if (date.getDay() === 0) { // Sunday
+                  classes.push("sunday");
+                }
+              }
+              return classes.length > 0 ? classes.join(' ') : null;
             }}
             onActiveStartDateChange={({ activeStartDate }) => setFechaSeleccionada(activeStartDate)}
           />
